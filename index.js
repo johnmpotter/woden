@@ -1,7 +1,7 @@
 'use strict';
 
 /*
-    
+
     Proxy Cache
     ==================================================================
     proxy cache is a module that allows you to run a proxy server that 
@@ -101,13 +101,15 @@ Woden.prototype.listen = function( port, ipaddress ) {
 
 Woden.prototype._onRequest = function( req, res ) {
 
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
     this.emit( 'request', req );
 
     var payload = '',
         arg = req.url.split( '?' ),
         path = arg.shift( ),
         query = qs.parse( arg.pop( ) ),
-        target = query.$url || '',
+        target = query.url || '',
         key,
         self = this;
 
@@ -166,7 +168,9 @@ Woden.prototype._onRequest = function( req, res ) {
             // add header to signify a cache hit
             cache.headers[ 'cache-agent' ] = pkg.name;
             res.writeHead( cache.statusCode, cache.headers );
-            res.write( cache.body );
+            // turn JSON buffer string (stored in redis) 
+            // back into Buffer object
+            res.write( new Buffer(cache.body.data) );
             res.end( );
             res.cache = true;
             self.emit( 'reponse', res );
