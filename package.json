@@ -18,7 +18,7 @@
   "author": "Andy Burke <aburke@bitflood.org>",
   "license": "MIT",
   "dependencies": {
-    "http-proxy": "^1.7.0",
+    "http-proxy": "^1.17.0",
     "node.extend": "^1.1.3",
     "sha1": "^1.1.0",
     "sorted-object": "^1.0.0",
