@@ -11,14 +11,16 @@
   "keywords": [
     "node"
   ],
-  "contributors": [ {
-    "name": "Jacob Lowe",
-    "url": "https://github.com/jcblw"
-  } ],
+  "contributors": [
+    {
+      "name": "Jacob Lowe",
+      "url": "https://github.com/jcblw"
+    }
+  ],
   "author": "Andy Burke <aburke@bitflood.org>",
   "license": "MIT",
   "dependencies": {
-    "http-proxy": "^1.7.0",
+    "http-proxy": "^1.8.0",
     "node.extend": "^1.1.3",
     "sha1": "^1.1.0",
     "sorted-object": "^1.0.0",
