@@ -4,7 +4,7 @@
 
     Proxy Cache
     ==================================================================
-    proxy cache is a module that allows you to run a proxy server that 
+    proxy cache is a module that allows you to run a proxy server that
     will cache request.
 
 */
@@ -23,8 +23,8 @@ var http = require( 'http' ),
 module.exports = Woden;
 
 /*
-    Woden::Constructor 
-    
+    Woden::Constructor
+
     params
         options { Object } - set some base configuration, also gets passed to `http-proxy`
 
@@ -43,7 +43,7 @@ function Woden( options ) {
     this.proxy.on( 'proxyReq', this._onProxyReq.bind( this ) );
     this.storageAdapter = require( './src/store' );
     this.proxy.on( 'error', this._onError.bind( this ) );
-}   
+}
 
 // inherit Event Emitter
 util.inherits( Woden, EventEmitter );
@@ -52,7 +52,7 @@ util.inherits( Woden, EventEmitter );
 /*
     Woden::when - allows for custom settings `when` url proxy is requested
 
-    params 
+    params
         regexp { RegExp } - pattern to match against the request param $url
         settings { Object } - an object with some common settings
 */
@@ -78,7 +78,7 @@ Woden.prototype.store = function( adapter ) {
     Woden::listen - Allows a custom port
 
     params
-        port { Number } - port to listen proxy server on 
+        port { Number } - port to listen proxy server on
 
 */
 
@@ -95,7 +95,7 @@ Woden.prototype.listen = function( port, ipaddress ) {
 
     params
         req { Request } - node request object
-        res { Response } - node response object 
+        res { Response } - node response object
 
 */
 
@@ -137,14 +137,14 @@ Woden.prototype._onRequest = function( req, res ) {
             return;
         }
     }
-    
+
     // right now only get request are supported
     if ( req.method.toLowerCase() !== 'get' ) {
         res.writeHead( 501 );
         res.write( 'Methods that are not "GET" are not implemented in proxy cache' );
         res.end( );
         res.cache = true;
-        self.emit( 'reponse', res ); 
+        self.emit( 'reponse', res );
         return;
     }
 
@@ -154,7 +154,7 @@ Woden.prototype._onRequest = function( req, res ) {
         res.write( '$url query param requires a valid url to use proxy cache' );
         res.end( );
         res.cache = true;
-        self.emit( 'reponse', res ); 
+        self.emit( 'reponse', res );
         return;
     }
 
@@ -168,7 +168,7 @@ Woden.prototype._onRequest = function( req, res ) {
             // add header to signify a cache hit
             cache.headers[ 'cache-agent' ] = pkg.name;
             res.writeHead( cache.statusCode, cache.headers );
-            // turn JSON buffer string (stored in redis) 
+            // turn JSON buffer string (stored in redis)
             // back into Buffer object
             res.write( new Buffer(cache.body.data) );
             res.end( );
@@ -177,7 +177,7 @@ Woden.prototype._onRequest = function( req, res ) {
             return;
         }
 
-        self.proxy.web( req, res, { 
+        self.proxy.web( req, res, {
             target: req._target,
             toProxy: req.url.length ? false : true
         } );
@@ -189,9 +189,9 @@ Woden.prototype._onRequest = function( req, res ) {
     Woden::_cacheResponse - Private caching handler
 
     params
-        proxyRes { Response } - node response object from proxy 
+        proxyRes { Response } - node response object from proxy
         req { Request } - node request object
-        res { Response } - node response object 
+        res { Response } - node response object
 
 */
 
@@ -200,7 +200,7 @@ Woden.prototype._cacheResponse = function( proxyRes, req ) {
     if ( !req._settings.caching ) {
         return;
     }
-    
+
     var arg = req.url.split( '?' ),
         query = sortObject( qs.parse( arg.pop( ) ) ),
         headers = proxyRes.headers,
@@ -236,7 +236,7 @@ Woden.prototype._cacheResponse = function( proxyRes, req ) {
         if ( timeout < 0 ) {
             return;
         }
-        
+
         self.storageAdapter.set( {
             key: key,
             value: cache,
@@ -249,7 +249,7 @@ Woden.prototype._cacheResponse = function( proxyRes, req ) {
     Woden::_getSettings - Private utility to grab the current url's setting
 
     params
-        url { String } - url that proxy is going to be requesting 
+        url { String } - url that proxy is going to be requesting
 
 */
 
@@ -260,7 +260,7 @@ Woden.prototype._getSettings = function( url ) {
         if ( Array.isArray( curSettings ) && curSettings[ 0 ].test( url ) && curSettings[ 1 ] ) {
             settings = curSettings[ 1 ];
         }
-    } 
+    }
     return extend( true, {}, {
         getKey: getKey,
         caching: true,
@@ -274,7 +274,7 @@ Woden.prototype._getSettings = function( url ) {
     Woden::_onProxyReq - Private handler of request pre proxy
 
     params
-        proxyRes { Request } - node request object for proxy 
+        proxyRes { Request } - node request object for proxy
         req { Request } - node request object
 
 */
@@ -285,7 +285,7 @@ Woden.prototype._onProxyReq = function( proxyReq, req ) {
     for ( var key in headers ) {
         proxyReq.setHeader( key, headers[ key ] );
     }
-    
+
     if ( !headers.host ) {
         var parsed = urlParse( req._target, false, true );
         proxyReq.setHeader( 'host', parsed.host );
@@ -296,12 +296,12 @@ Woden.prototype._onProxyReq = function( proxyReq, req ) {
     Woden::_onError - Private handler of errors
 
     params
-        error { Error } - error object ( not a string ) 
+        error { Error } - error object ( not a string )
 
 */
 
-Woden.prototype._onError = function( error ) {
-    this.emit( 'error', error );
+Woden.prototype._onError = function( error, req = undefined, res = undefined ) {
+    this.emit( 'error', error, req, res );
 };
 
 /*
@@ -309,7 +309,7 @@ Woden.prototype._onError = function( error ) {
 
     params
         url { String } - the full target url of the request
-        payload { Object } - query object from initial request 
+        payload { Object } - query object from initial request
 
 */
 
